@@ -44,8 +44,10 @@ type
     procedure timerTransformOnTimer(Sender: TObject);
     procedure btnStartOnClick(Sender: TObject);
     procedure btnResetOnClick(Sender: TObject);
+    procedure imgCurrentImageOnLoaded(Sender: TObject);
   private
     { Private declarations }
+    isStartup: boolean;
     camera :TMediaPipeCamera;
     hands: TMediaPipeHands;
     [async]
@@ -78,14 +80,18 @@ procedure TformMediapipe.timerTransformOnTimer(Sender: TObject);
 var
   randomIndex: Byte;
   currentStyle: string;
+  imageElement: TJSElement;
+  imagePath: string;
 begin
+    formMediapipe.timerTransform.Enabled := False;
   repeat
     randomIndex := RandomRange(0, Images.Count);
   until randomIndex <> currentIndex;
   currentIndex := randomIndex;
+
+  imagePath := Images[currentIndex];
+  isStartup := False;
   imgCurrentImage.ElementHandle.setAttribute('src', Images[currentIndex]);
-  formMediapipe.imgCurrentImage.ElementHandle.style.setProperty('transform', ' translateX(0)');
-  formMediapipe.imgCurrentImage.ElementHandle.style.setProperty('opacity', '1');
   formMediapipe.timerTransform.Enabled := False;
 end;
 
@@ -324,6 +330,7 @@ begin
   swipeSpeedThreshold := 12;
   swipeDistanceThreshold := 100;
   likeTimeOut := 200;
+  isStartup := True;
   Images := TStringList.Create;
   Images.Add('./img/cat1.jpg');
   Images.Add('./img/cat2.jpg');
@@ -343,6 +350,15 @@ begin
   Images.Add('./img/snake1.jpg');
   Images.Add('./img/frog1.jpg');
   Images.Add('./img/lizard1.jpg');
+end;
+
+procedure TformMediapipe.imgCurrentImageOnLoaded(Sender: TObject);
+begin
+  if not isStartup then
+  begin
+    formMediapipe.imgCurrentImage.ElementHandle.style.setProperty('transform', ' translateX(0)');
+    formMediapipe.imgCurrentImage.ElementHandle.style.setProperty('opacity', '1');
+  end;
 end;
 
 end.
